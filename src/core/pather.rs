@@ -274,7 +274,6 @@ mod test {
             saider::Saider,
             serder::Serder,
         },
-        data::dat,
     };
 
     #[test]

@@ -3,7 +3,7 @@ use crate::{
     core::matter::tables as matter,
     core::sadder::Sadder,
     core::saider::Saider,
-    data::{dat, Value},
+    data::Value,
     error::{err, Error, Result},
 };
 

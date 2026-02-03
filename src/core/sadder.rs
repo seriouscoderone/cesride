@@ -220,7 +220,7 @@ mod test {
         sadder::Sadder,
         saider::Saider,
     };
-    use crate::data::{dat, Value};
+    use crate::data::Value;
 
     #[derive(Debug, Clone, PartialEq)]
     struct TestSadder {

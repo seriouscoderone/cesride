@@ -1,7 +1,7 @@
 use crate::core::common::{deversify, dumps, sizeify, Ids, Serialage, DUMMY};
 use crate::core::matter::{tables as matter, Matter};
 use crate::crypto::hash;
-use crate::data::{dat, Value};
+use crate::data::Value;
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -299,7 +299,6 @@ mod test {
     use crate::core::common::{versify, Identage, Ids, Serialage, Version};
     use crate::core::matter::{tables as matter, Matter};
     use crate::core::saider::Saider;
-    use crate::data::dat;
     use rstest::rstest;
 
     #[test]

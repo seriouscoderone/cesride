@@ -1,4 +1,4 @@
-use crate::data::{dat, Value};
+use crate::data::Value;
 use crate::error::{err, Error, Result};
 
 use lazy_static::lazy_static;
@@ -294,7 +294,6 @@ pub fn sniff(raw: &[u8]) -> Result<SniffResult> {
 #[cfg(test)]
 mod test {
     use crate::core::common;
-    use crate::data::dat;
     use rstest::rstest;
 
     #[test]

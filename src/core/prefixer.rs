@@ -399,7 +399,6 @@ mod test {
             signer::Signer,
             verfer::Verfer,
         },
-        data::dat,
     };
     use rstest::rstest;
 

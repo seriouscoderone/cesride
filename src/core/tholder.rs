@@ -4,7 +4,7 @@ use crate::{
         matter::{tables as matter, Matter},
         number::{tables as number, Number},
     },
-    data::{dat, Array, Value},
+    data::{Array, Value},
     error::{err, Error, Result},
 };
 

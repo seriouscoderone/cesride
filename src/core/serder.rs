@@ -9,7 +9,7 @@ use crate::{
         tholder::Tholder,
         verfer::Verfer,
     },
-    data::{dat, Value},
+    data::Value,
     error::{err, Error, Result},
 };
 

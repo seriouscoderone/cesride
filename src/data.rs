@@ -604,7 +604,7 @@ pub use dat;
 
 #[cfg(test)]
 mod test {
-    use crate::data::{dat, Value};
+    use crate::data::Value;
     use indexmap::IndexMap;
 
     #[test]
