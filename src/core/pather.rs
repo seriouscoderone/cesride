@@ -171,7 +171,7 @@ impl Pather {
         } else if val.to_map().is_ok() || val.to_vec().is_ok() {
             val.to_json()
         } else {
-            return err!(Error::Value("bad tail value".to_string()));
+            err!(Error::Value("bad tail value".to_string()))
         }
     }
 

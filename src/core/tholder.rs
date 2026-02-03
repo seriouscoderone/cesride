@@ -247,9 +247,8 @@ impl Tholder {
     }
 
     fn process_thold(&mut self, thold: &Value) -> Result<()> {
-        let result = thold.to_i64();
-        if result.is_ok() {
-            self.process_unweighted(result.unwrap())?;
+        if let Ok(value) = thold.to_i64() {
+            self.process_unweighted(value)?;
             return Ok(());
         }
 

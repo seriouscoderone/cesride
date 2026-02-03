@@ -306,7 +306,7 @@ pub trait Matter: Default {
         buffer[((n + szg.ls) as usize)..].copy_from_slice(&raw);
 
         let bfs = buffer.len();
-        if bfs % 3 != 0 || (bfs * 4 / 3) != fs as usize {
+        if !bfs.is_multiple_of(3) || (bfs * 4 / 3) != fs as usize {
             return err!(Error::InvalidCodeSize(format!(
                 "invalid code for raw size: code = '{both}', raw size = {}",
                 raw.len()
@@ -427,7 +427,7 @@ pub trait Matter: Default {
 
         let first = util::nab_sextets(qb2, 1)?[0];
         let hs = tables::bardage(first)? as usize;
-        let bhs = (hs * 3 + 3) / 4;
+        let bhs = (hs * 3).div_ceil(4);
         if qb2.len() < bhs {
             return err!(Error::Shortage(format!(
                 "insufficient material for hard part of code: qb2 size = {}, bhs = {bhs}",

@@ -90,11 +90,12 @@ pub trait Indexer: Default {
             }
         }
 
-        if CurrentSigCodex::has_code(code) && ondex.is_some() {
-            return err!(Error::InvalidVarIndex(format!(
-                "Non None ondex '{o}' for code '{code}'",
-                o = ondex.unwrap()
-            )));
+        if CurrentSigCodex::has_code(code) {
+            if let Some(o) = ondex {
+                return err!(Error::InvalidVarIndex(format!(
+                    "Non None ondex '{o}' for code '{code}'"
+                )));
+            }
         }
 
         if BothSigCodex::has_code(code) {
@@ -365,7 +366,7 @@ pub trait Indexer: Default {
         buffer[((n + szg.ls) as usize)..].copy_from_slice(&raw);
 
         let bfs = buffer.len();
-        if bfs % 3 != 0 || (bfs * 4 / 3) != fs as usize {
+        if !bfs.is_multiple_of(3) || (bfs * 4 / 3) != fs as usize {
             return err!(Error::InvalidCodeSize(format!(
                 "Invalid code for raw size: code = '{both}', raw size = '{}'",
                 raw.len()
@@ -416,11 +417,12 @@ pub trait Indexer: Default {
                 ondex = Some(util::b64_to_u32(odx)?);
             }
             // not zero or None
-            if ondex.is_some() && ondex.unwrap() != 0 {
-                return err!(Error::Value(format!(
-                    "Invalid ondex = '{o}' for code = '{hard}'.",
-                    o = ondex.unwrap()
-                )));
+            if let Some(o) = ondex {
+                if o != 0 {
+                    return err!(Error::Value(format!(
+                        "Invalid ondex = '{o}' for code = '{hard}'."
+                    )));
+                }
             }
         } else if szg.os != 0 {
             ondex = Some(util::b64_to_u32(odx)?);
@@ -518,7 +520,7 @@ pub trait Indexer: Default {
 
         let first = util::nab_sextets(qb2, 1)?[0];
         let hs = tables::bardage(first)? as usize;
-        let bhs = (hs * 3 + 3) / 4;
+        let bhs = (hs * 3).div_ceil(4);
         if qb2.len() < bhs {
             return err!(Error::Shortage(format!(
                 "insufficient material for hard part of code: qb2 size = {}, bhs = {bhs}",
@@ -549,11 +551,12 @@ pub trait Indexer: Default {
                 ondex = Some(util::b64_to_u32(odx)?);
             }
             // not zero or None
-            if ondex.is_some() && ondex.unwrap() != 0 {
-                return err!(Error::Value(format!(
-                    "Invalid ondex = '{o}' for code = '{hard}'.",
-                    o = ondex.unwrap()
-                )));
+            if let Some(o) = ondex {
+                if o != 0 {
+                    return err!(Error::Value(format!(
+                        "Invalid ondex = '{o}' for code = '{hard}'."
+                    )));
+                }
             }
 
             // unset ondex if it was 0 - this code was in another if clause in KERIpy

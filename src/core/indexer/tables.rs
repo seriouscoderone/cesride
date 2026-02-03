@@ -14,8 +14,6 @@ use crate::error::{err, Error, Result};
 /// _Crt: Index in code for current signing key list only.
 ///
 /// _Big: Big index values
-///
-
 pub(crate) const SMALL_VRZ_BYTES: u32 = 3;
 pub(crate) const LARGE_VRZ_BYTES: u32 = 6;
 
