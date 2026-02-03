@@ -390,15 +390,13 @@ impl Matter for Prefixer {
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        core::{
-            common::{sizeify, versify, Ilkage, Serialage, CURRENT_VERSION},
-            diger::Diger,
-            matter::{tables as matter, Matter},
-            prefixer::Prefixer,
-            signer::Signer,
-            verfer::Verfer,
-        },
+    use crate::core::{
+        common::{sizeify, versify, Ilkage, Serialage, CURRENT_VERSION},
+        diger::Diger,
+        matter::{tables as matter, Matter},
+        prefixer::Prefixer,
+        signer::Signer,
+        verfer::Verfer,
     };
     use rstest::rstest;
 

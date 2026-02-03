@@ -267,13 +267,11 @@ impl Matter for Pather {
 #[cfg(test)]
 mod test {
     use super::Pather;
-    use crate::{
-        core::{
-            bexter::Bext,
-            matter::{tables as matter, Matter},
-            saider::Saider,
-            serder::Serder,
-        },
+    use crate::core::{
+        bexter::Bext,
+        matter::{tables as matter, Matter},
+        saider::Saider,
+        serder::Serder,
     };
 
     #[test]
