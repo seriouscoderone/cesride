@@ -828,4 +828,233 @@ mod test {
     fn transferable(#[case] matter: TestMatter, #[case] result: bool) {
         assert_eq!(matter.transferable(), result);
     }
+
+    // =============================================================================
+    // Test vectors from cesr-decoder testvectors.json
+    // These test vectors are adapted from the official CESR decoder test suite
+    // to validate Matter primitive encoding/decoding roundtrips.
+    // =============================================================================
+
+    /// Test Matter code "A" (Ed25519_Seed) - 32 byte raw, 44 char qb64
+    mod matter_testvectors {
+        use super::*;
+        use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+
+        /// Helper to decode URL-safe base64 strings (which may need padding)
+        fn decode_urlsafe(input: &str) -> Vec<u8> {
+            // Add padding if needed
+            let padded = match input.len() % 4 {
+                2 => format!("{input}=="),
+                3 => format!("{input}="),
+                _ => input.to_string(),
+            };
+            URL_SAFE_NO_PAD
+                .decode(padded.trim_end_matches('='))
+                .unwrap_or_else(|_| {
+                    // Fallback: try with padding
+                    base64::engine::general_purpose::URL_SAFE.decode(&padded).unwrap()
+                })
+        }
+
+        #[test]
+        fn matter_code_a_zeros() {
+            // code "A", raw = 32 zeros, qb64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            let qb64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 32]; // 32 zeros
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Ed25519_Seed);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = m.qb2().unwrap();
+            let m2 = TestMatter::new(None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(m2.code(), m.code());
+            assert_eq!(m2.raw(), m.raw());
+        }
+
+        #[test]
+        fn matter_code_a_sequential() {
+            // code "A", raw = 0x00-0x1F sequential bytes
+            let qb64 = "AAABAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGhscHR4f";
+            let raw: Vec<u8> = (0..32).collect();
+            assert_eq!(raw.len(), 32);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Ed25519_Seed);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+
+            // Roundtrip via raw + code
+            let m2 =
+                TestMatter::new(Some(matter::Codex::Ed25519_Seed), Some(&raw), None, None, None)
+                    .unwrap();
+            assert_eq!(m2.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_a_max() {
+            // code "A", raw = 32 bytes of 0xFF
+            let qb64 = "AP__________________________________________";
+            let raw = vec![0xffu8; 32];
+            assert_eq!(raw.len(), 32);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Ed25519_Seed);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_0a_zeros() {
+            // code "0A" (Salt_128), raw = 16 zeros
+            let qb64 = "0AAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 16];
+            assert_eq!(raw.len(), 16);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Salt_128);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_0a_sequential() {
+            // code "0A", raw = 0x00-0x0F sequential
+            let qb64 = "0AAAAQIDBAUGBwgJCgsMDQ4P";
+            let raw: Vec<u8> = (0..16).collect();
+            assert_eq!(raw.len(), 16);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Salt_128);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_0a_max() {
+            // code "0A", raw = 16 bytes of 0xFF
+            let qb64 = "0AD_____________________";
+            let raw = vec![0xffu8; 16];
+            assert_eq!(raw.len(), 16);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::Salt_128);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_1aaa_zeros() {
+            // code "1AAA" (ECDSA_256k1N), raw = 33 zeros
+            let qb64 = "1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 33];
+            assert_eq!(raw.len(), 33);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::ECDSA_256k1N);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_1aaa_sequential() {
+            // code "1AAA", raw = sequential bytes
+            let qb64 = "1AAAAAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8g";
+            let raw: Vec<u8> = (0..33).collect();
+            assert_eq!(raw.len(), 33);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::ECDSA_256k1N);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_1aaa_max() {
+            // code "1AAA", raw = 33 bytes of 0xFF
+            let qb64 = "1AAA____________________________________________";
+            let raw = vec![0xffu8; 33];
+            assert_eq!(raw.len(), 33);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::ECDSA_256k1N);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_2aaa_zeros() {
+            // code "2AAA" (TBD1), ls=1, raw = 2 zeros
+            // sizage: fs=8, hs=4, ss=0, ls=1. raw size = (8-4)*3/4 - 1 = 2
+            let qb64 = "2AAAAAAA";
+            let raw = vec![0u8; 2];
+            assert_eq!(raw.len(), 2);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::TBD1);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_2aaa_one() {
+            // code "2AAA", raw = [0, 1]
+            let qb64 = "2AAAAAAB";
+            let raw = vec![0u8, 1u8];
+            assert_eq!(raw.len(), 2);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::TBD1);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_2aaa_max() {
+            // code "2AAA", ls=1, raw = [255, 255]
+            // sizage: fs=8, hs=4, ss=0, ls=1. raw size = (8-4)*3/4 - 1 = 2
+            let qb64 = "2AAAAP__";
+            let raw = vec![0xffu8; 2];
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::TBD1);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_3aaa_zeros() {
+            // code "3AAA" (TBD2), raw = 1 zero (because TBD2 has ls=2, meaning 2 lead bytes)
+            // Check sizage: TBD2 (3AAA) has fs=8, hs=4, ss=0, ls=2, so raw = (8-4)*3/4 - 2 = 1
+            let qb64 = "3AAAAAAA";
+            let raw = vec![0u8]; // 1 zero
+            assert_eq!(raw.len(), 1);
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::TBD2);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn matter_code_3aaa_max() {
+            // code "3AAA", raw = [255]
+            let qb64 = "3AAAAAD_";
+            let raw = vec![0xffu8]; // 1 byte of 0xFF
+
+            let m = TestMatter::new(None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(m.code(), matter::Codex::TBD2);
+            assert_eq!(m.raw(), raw);
+            assert_eq!(m.qb64().unwrap(), qb64);
+        }
+
+        // Allow the unused function during development
+        #[allow(dead_code)]
+        fn _decode_urlsafe() {
+            // Keep the function in scope for potential future use
+            let _ = decode_urlsafe("test");
+        }
+    }
 }

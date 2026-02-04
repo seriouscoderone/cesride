@@ -1035,4 +1035,203 @@ mod test {
         let indexer = TestIndexer::new(None, None, None, None, None, Some(&qb64), None).unwrap();
         assert_eq!(indexer.full_size().unwrap(), full_size);
     }
+
+    // =============================================================================
+    // Test vectors from cesr-decoder testvectors.json
+    // These test vectors are adapted from the official CESR decoder test suite
+    // to validate Indexer encoding/decoding roundtrips.
+    // =============================================================================
+
+    mod indexer_testvectors {
+        use super::*;
+
+        #[test]
+        fn indexer_code_a_index_0_zeros() {
+            // code "A" (Ed25519), index 0, ondex null, 64 byte raw (all zeros)
+            let qb64 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 64];
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519);
+            assert_eq!(idx.index(), 0);
+            // Ed25519 is a "both" code, not current-only, so ondex should equal index
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = idx.qb2().unwrap();
+            let idx2 = TestIndexer::new(None, None, None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(idx2.code(), idx.code());
+            assert_eq!(idx2.index(), idx.index());
+            assert_eq!(idx2.raw(), idx.raw());
+        }
+
+        #[test]
+        fn indexer_code_a_index_18_sequential() {
+            // code "A" (Ed25519), index 18, ondex null
+            let qb64 = "ASAAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4_";
+            let raw: Vec<u8> = (0..64).collect();
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519);
+            assert_eq!(idx.index(), 18);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_a_index_63_max() {
+            // code "A" (Ed25519), index 63, ondex null, all 0xFF raw
+            let qb64 = "A_D_____________________________________________________________________________________";
+            let raw = vec![0xffu8; 64];
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519);
+            assert_eq!(idx.index(), 63);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+
+            // Create from code, raw, and index
+            let idx2 = TestIndexer::new(Some(63), None, Some(indexer::Codex::Ed25519), Some(&raw), None, None, None)
+                .unwrap();
+            assert_eq!(idx2.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_0a_index_0_ondex_0() {
+            // code "0A" (Ed448), index 0, ondex 0, 114 byte raw
+            let qb64 = "0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 114];
+            assert_eq!(raw.len(), 114);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed448);
+            assert_eq!(idx.index(), 0);
+            assert_eq!(idx.ondex(), 0);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_0a_index_18_ondex_52() {
+            // code "0A" (Ed448), index 18, ondex 52
+            let qb64 = "0AS0AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3Bx";
+            let raw: Vec<u8> = (0..114).collect();
+            assert_eq!(raw.len(), 114);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed448);
+            assert_eq!(idx.index(), 18);
+            assert_eq!(idx.ondex(), 52);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_0a_index_63_ondex_63() {
+            // code "0A" (Ed448), index 63, ondex 63
+            let qb64 = "0A__________________________________________________________________________________________________________________________________________________________";
+            let raw = vec![0xffu8; 114];
+            assert_eq!(raw.len(), 114);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed448);
+            assert_eq!(idx.index(), 63);
+            assert_eq!(idx.ondex(), 63);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_2a_big_index_0_ondex_0() {
+            // code "2A" (Ed25519_Big), index 0, ondex 0, 64 byte raw
+            let qb64 = "2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            let raw = vec![0u8; 64];
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519_Big);
+            assert_eq!(idx.index(), 0);
+            assert_eq!(idx.ondex(), 0);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = idx.qb2().unwrap();
+            let idx2 = TestIndexer::new(None, None, None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(idx2.code(), idx.code());
+            assert_eq!(idx2.index(), idx.index());
+            assert_eq!(idx2.ondex(), idx.ondex());
+        }
+
+        #[test]
+        fn indexer_code_2a_big_index_18_ondex_52() {
+            // code "2A" (Ed25519_Big), index 18, ondex 52
+            let qb64 = "2AASA0AAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4_";
+            let raw: Vec<u8> = (0..64).collect();
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519_Big);
+            assert_eq!(idx.index(), 18);
+            assert_eq!(idx.ondex(), 52);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_code_2a_big_index_63_ondex_63() {
+            // code "2A" (Ed25519_Big), index 63, ondex 63
+            let qb64 = "2AA_A_D_____________________________________________________________________________________";
+            let raw = vec![0xffu8; 64];
+            assert_eq!(raw.len(), 64);
+
+            let idx = TestIndexer::new(None, None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(idx.code(), indexer::Codex::Ed25519_Big);
+            assert_eq!(idx.index(), 63);
+            assert_eq!(idx.ondex(), 63);
+            assert_eq!(idx.raw(), raw);
+            assert_eq!(idx.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn indexer_boundary_index_values() {
+            // Test boundary values for Ed25519 index (6-bit, 0-63)
+            let raw = vec![0u8; 64]; // 64 zeros
+
+            for index in [0_u32, 1, 31, 32, 62, 63] {
+                let idx = TestIndexer::new(Some(index), None, Some(indexer::Codex::Ed25519), Some(&raw), None, None, None)
+                    .unwrap();
+                let qb64 = idx.qb64().unwrap();
+                let idx2 = TestIndexer::new(None, None, None, None, None, Some(&qb64), None).unwrap();
+                assert_eq!(idx2.index(), index, "Roundtrip failed for index {index}");
+            }
+        }
+
+        #[test]
+        fn indexer_big_boundary_index_values() {
+            // Test larger index values for Ed25519_Big (12-bit index, 12-bit ondex)
+            let raw = vec![0u8; 64]; // 64 zeros
+
+            for (index, ondex) in [(0_u32, 0_u32), (100, 200), (4095, 4095)] {
+                let idx = TestIndexer::new(
+                    Some(index),
+                    Some(ondex),
+                    Some(indexer::Codex::Ed25519_Big),
+                    Some(&raw),
+                    None,
+                    None,
+                    None,
+                )
+                .unwrap();
+                let qb64 = idx.qb64().unwrap();
+                let idx2 = TestIndexer::new(None, None, None, None, None, Some(&qb64), None).unwrap();
+                assert_eq!(idx2.index(), index, "Roundtrip failed for index {index}");
+                assert_eq!(idx2.ondex(), ondex, "Roundtrip failed for ondex {ondex}");
+            }
+        }
+    }
 }

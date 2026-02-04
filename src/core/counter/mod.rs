@@ -542,4 +542,154 @@ mod test {
         assert_eq!(counter.code(), code); // Just a self-check of the input data
         assert_eq!(counter.full_size().unwrap(), full_size);
     }
+
+    // =============================================================================
+    // Test vectors from cesr-decoder testvectors.json
+    // These test vectors are adapted from the official CESR decoder test suite
+    // to validate Counter encoding/decoding roundtrips.
+    // =============================================================================
+
+    mod counter_testvectors {
+        use super::*;
+
+        #[test]
+        fn counter_code_a_count_0() {
+            // code "-A", count 0
+            let qb64 = "-AAA";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::ControllerIdxSigs);
+            assert_eq!(c.count(), 0);
+            assert_eq!(c.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = c.qb2().unwrap();
+            let c2 = Counter::new(None, None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(c2.code(), c.code());
+            assert_eq!(c2.count(), c.count());
+        }
+
+        #[test]
+        fn counter_code_a_count_129() {
+            // code "-A", count 129
+            let qb64 = "-ACB";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::ControllerIdxSigs);
+            assert_eq!(c.count(), 129);
+            assert_eq!(c.qb64().unwrap(), qb64);
+
+            // Roundtrip via code + count
+            let c2 =
+                Counter::new(Some(129), None, Some(counter::Codex::ControllerIdxSigs), None, None, None)
+                    .unwrap();
+            assert_eq!(c2.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_code_a_count_255() {
+            // code "-A", count 255
+            let qb64 = "-AD_";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::ControllerIdxSigs);
+            assert_eq!(c.count(), 255);
+            assert_eq!(c.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_code_0v_count_0() {
+            // code "-0V", count 0
+            let qb64 = "-0VAAAAA";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::BigAttachedMaterialQuadlets);
+            assert_eq!(c.count(), 0);
+            assert_eq!(c.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = c.qb2().unwrap();
+            let c2 = Counter::new(None, None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(c2.code(), c.code());
+            assert_eq!(c2.count(), c.count());
+        }
+
+        #[test]
+        fn counter_code_0v_count_129() {
+            // code "-0V", count 129
+            let qb64 = "-0VAAACB";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::BigAttachedMaterialQuadlets);
+            assert_eq!(c.count(), 129);
+            assert_eq!(c.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_code_0v_count_255() {
+            // code "-0V", count 255
+            let qb64 = "-0VAAAD_";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::BigAttachedMaterialQuadlets);
+            assert_eq!(c.count(), 255);
+            assert_eq!(c.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_code_aaa_count_0() {
+            // code "--AAA", count 0
+            let qb64 = "--AAAAAA";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::KERIProtocolStack);
+            assert_eq!(c.count(), 0);
+            assert_eq!(c.qb64().unwrap(), qb64);
+
+            // Roundtrip via qb2
+            let qb2 = c.qb2().unwrap();
+            let c2 = Counter::new(None, None, None, None, None, Some(&qb2)).unwrap();
+            assert_eq!(c2.code(), c.code());
+            assert_eq!(c2.count(), c.count());
+        }
+
+        #[test]
+        fn counter_code_aaa_count_129() {
+            // code "--AAA", count 129
+            let qb64 = "--AAAACB";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::KERIProtocolStack);
+            assert_eq!(c.count(), 129);
+            assert_eq!(c.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_code_aaa_count_255() {
+            // code "--AAA", count 255
+            let qb64 = "--AAAAD_";
+            let c = Counter::new(None, None, None, None, Some(qb64), None).unwrap();
+            assert_eq!(c.code(), counter::Codex::KERIProtocolStack);
+            assert_eq!(c.count(), 255);
+            assert_eq!(c.qb64().unwrap(), qb64);
+        }
+
+        #[test]
+        fn counter_max_small_count() {
+            // Maximum count for 2-digit soft part (64^2 - 1 = 4095)
+            let c = Counter::new(Some(4095), None, Some(counter::Codex::ControllerIdxSigs), None, None, None)
+                .unwrap();
+            assert_eq!(c.count(), 4095);
+            let qb64 = c.qb64().unwrap();
+            assert_eq!(qb64, "-A__");
+
+            // Verify roundtrip
+            let c2 = Counter::new(None, None, None, None, Some(&qb64), None).unwrap();
+            assert_eq!(c2.count(), 4095);
+        }
+
+        #[test]
+        fn counter_boundary_values() {
+            // Test boundary values for counter counts
+            for count in [0_u32, 1, 63, 64, 255, 256, 4094, 4095] {
+                let c = Counter::new(Some(count), None, Some(counter::Codex::ControllerIdxSigs), None, None, None)
+                    .unwrap();
+                let qb64 = c.qb64().unwrap();
+                let c2 = Counter::new(None, None, None, None, Some(&qb64), None).unwrap();
+                assert_eq!(c2.count(), count, "Roundtrip failed for count {count}");
+            }
+        }
+    }
 }
