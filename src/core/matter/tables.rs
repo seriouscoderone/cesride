@@ -32,6 +32,10 @@ pub(crate) fn sizage(s: &str) -> Result<Sizage> {
         "O" => Sizage { hs: 1, ss: 0, fs: 44, ls: 0 },
         "P" => Sizage { hs: 1, ss: 0, fs: 124, ls: 0 },
         "Q" => Sizage { hs: 1, ss: 0, fs: 44, ls: 0 },
+        "R" => Sizage { hs: 1, ss: 0, fs: 8, ls: 0 },  // Tall 5 byte b2 number
+        "S" => Sizage { hs: 1, ss: 0, fs: 16, ls: 0 }, // Large 11 byte b2 number
+        "T" => Sizage { hs: 1, ss: 0, fs: 20, ls: 0 }, // Great 14 byte b2 number
+        "U" => Sizage { hs: 1, ss: 0, fs: 24, ls: 0 }, // Vast 17 byte b2 number
         "0A" => Sizage { hs: 2, ss: 0, fs: 24, ls: 0 },
         "0B" => Sizage { hs: 2, ss: 0, fs: 88, ls: 0 },
         "0C" => Sizage { hs: 2, ss: 0, fs: 88, ls: 0 },
@@ -45,12 +49,18 @@ pub(crate) fn sizage(s: &str) -> Result<Sizage> {
         "1AAB" => Sizage { hs: 4, ss: 0, fs: 48, ls: 0 },
         "1AAC" => Sizage { hs: 4, ss: 0, fs: 80, ls: 0 },
         "1AAD" => Sizage { hs: 4, ss: 0, fs: 80, ls: 0 },
-        "1AAE" => Sizage { hs: 4, ss: 0, fs: 56, ls: 0 },
+        "1AAE" => Sizage { hs: 4, ss: 0, fs: 156, ls: 0 },
         "1AAF" => Sizage { hs: 4, ss: 0, fs: 8, ls: 0 },
         "1AAG" => Sizage { hs: 4, ss: 0, fs: 36, ls: 0 },
         "1AAH" => Sizage { hs: 4, ss: 0, fs: 100, ls: 0 },
         "1AAI" => Sizage { hs: 4, ss: 0, fs: 48, ls: 0 },
         "1AAJ" => Sizage { hs: 4, ss: 0, fs: 48, ls: 0 },
+        "1AAK" => Sizage { hs: 4, ss: 0, fs: 4, ls: 0 }, // Null/None/Empty
+        "1AAL" => Sizage { hs: 4, ss: 0, fs: 4, ls: 0 }, // Boolean False
+        "1AAM" => Sizage { hs: 4, ss: 0, fs: 4, ls: 0 }, // Boolean True
+        "1AAN" => Sizage { hs: 4, ss: 0, fs: 16, ls: 1 }, // Tag8 - 8-byte tag with 1 lead byte
+        "1AAO" => Sizage { hs: 4, ss: 0, fs: 4, ls: 0 }, // Escape code marker
+        "1AAP" => Sizage { hs: 4, ss: 0, fs: 4, ls: 0 }, // Empty nonce placeholder
         "2AAA" => Sizage { hs: 4, ss: 0, fs: 8, ls: 1 },
         "3AAA" => Sizage { hs: 4, ss: 0, fs: 8, ls: 2 },
         "4A" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
@@ -65,6 +75,49 @@ pub(crate) fn sizage(s: &str) -> Result<Sizage> {
         "7AAB" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
         "8AAB" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
         "9AAB" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // X25519 sealed box cipher bytes of sniffable plaintext
+        "4C" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5C" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6C" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        "7AAC" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAC" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAC" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // X25519 sealed box cipher bytes of QB64 plaintext
+        "4D" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5D" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6D" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        "7AAD" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAD" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAD" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // X25519 sealed box cipher bytes of QB2 plaintext
+        "4E" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5E" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6E" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        "7AAE" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAE" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAE" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // HPKE Base cipher bytes of QB2 plaintext
+        "4F" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5F" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6F" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        "7AAF" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAF" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAF" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // HPKE Auth cipher bytes of QB2 plaintext
+        "4G" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5G" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6G" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        "7AAG" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAG" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAG" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
+        // Decimal number string (small)
+        "4H" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 0 },
+        "5H" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 1 },
+        "6H" => Sizage { hs: 2, ss: 2, fs: u32::MAX, ls: 2 },
+        // Decimal number string (big)
+        "7AAH" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 0 },
+        "8AAH" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 1 },
+        "9AAH" => Sizage { hs: 4, ss: 4, fs: u32::MAX, ls: 2 },
         _ => return err!(Error::UnknownSizage(s.to_string())),
     })
 }
@@ -121,6 +174,10 @@ pub mod Codex {
     pub const X25519_Private: &str = "O"; // X25519 private decryption key converted from Ed25519
     pub const X25519_Cipher_Seed: &str = "P"; // X25519 124 char b64 Cipher of 44 char qb64 Seed
     pub const ECDSA_256r1_Seed: &str = "Q"; // ECDSA secp256r1 256 bit random Seed for private key
+    pub const Tall: &str = "R"; // Tall 5 byte b2 number
+    pub const Large: &str = "S"; // Large 11 byte b2 number
+    pub const Great: &str = "T"; // Great 14 byte b2 number
+    pub const Vast: &str = "U"; // Vast 17 byte b2 number
     pub const Salt_128: &str = "0A"; // 128 bit random salt or 128 bit number (see Huge)
     pub const Ed25519_Sig: &str = "0B"; // Ed25519 signature.
     pub const ECDSA_256k1_Sig: &str = "0C"; // ECDSA secp256k1 signature.
@@ -140,6 +197,12 @@ pub mod Codex {
     pub const X25519_Cipher_Salt: &str = "1AAH"; // X25519 100 char b64 Cipher of 24 char qb64 Salt
     pub const ECDSA_256r1N: &str = "1AAI"; // ECDSA secp256r1 verification key non-transferable, basic derivation.
     pub const ECDSA_256r1: &str = "1AAJ"; // ECDSA secp256r1 verification or encryption key, basic derivation
+    pub const Null: &str = "1AAK"; // Null/None/Empty value for JSON-CBOR interop
+    pub const False: &str = "1AAL"; // Boolean False value
+    pub const True: &str = "1AAM"; // Boolean True value
+    pub const Tag8: &str = "1AAN"; // 8-byte tag for protocol extensibility
+    pub const Escape: &str = "1AAO"; // Escape code marker for special sequences
+    pub const EmptyNonce: &str = "1AAP"; // Empty nonce placeholder
     pub const TBD1: &str = "2AAA"; // Testing purposes only fixed with lead size 1
     pub const TBD2: &str = "3AAA"; // Testing purposes only of fixed with lead size 2
     pub const StrB64_L0: &str = "4A"; // String Base64 Only Lead Size 0 (4095 * 3 | 4)
@@ -154,6 +217,49 @@ pub mod Codex {
     pub const Bytes_Big_L0: &str = "7AAB"; // Byte String Big Leader Size 0
     pub const Bytes_Big_L1: &str = "8AAB"; // Byte String Big Leader Size 1
     pub const Bytes_Big_L2: &str = "9AAB"; // Byte String Big Leader Size 2
+                                           // X25519 sealed box cipher bytes of sniffable plaintext
+    pub const X25519_SealedBox_Sniff_L0: &str = "4C"; // Lead Size 0
+    pub const X25519_SealedBox_Sniff_L1: &str = "5C"; // Lead Size 1
+    pub const X25519_SealedBox_Sniff_L2: &str = "6C"; // Lead Size 2
+    pub const X25519_SealedBox_Sniff_Big_L0: &str = "7AAC"; // Big Lead Size 0
+    pub const X25519_SealedBox_Sniff_Big_L1: &str = "8AAC"; // Big Lead Size 1
+    pub const X25519_SealedBox_Sniff_Big_L2: &str = "9AAC"; // Big Lead Size 2
+                                                            // X25519 sealed box cipher bytes of QB64 plaintext
+    pub const X25519_SealedBox_QB64_L0: &str = "4D"; // Lead Size 0
+    pub const X25519_SealedBox_QB64_L1: &str = "5D"; // Lead Size 1
+    pub const X25519_SealedBox_QB64_L2: &str = "6D"; // Lead Size 2
+    pub const X25519_SealedBox_QB64_Big_L0: &str = "7AAD"; // Big Lead Size 0
+    pub const X25519_SealedBox_QB64_Big_L1: &str = "8AAD"; // Big Lead Size 1
+    pub const X25519_SealedBox_QB64_Big_L2: &str = "9AAD"; // Big Lead Size 2
+                                                           // X25519 sealed box cipher bytes of QB2 plaintext
+    pub const X25519_SealedBox_QB2_L0: &str = "4E"; // Lead Size 0
+    pub const X25519_SealedBox_QB2_L1: &str = "5E"; // Lead Size 1
+    pub const X25519_SealedBox_QB2_L2: &str = "6E"; // Lead Size 2
+    pub const X25519_SealedBox_QB2_Big_L0: &str = "7AAE"; // Big Lead Size 0
+    pub const X25519_SealedBox_QB2_Big_L1: &str = "8AAE"; // Big Lead Size 1
+    pub const X25519_SealedBox_QB2_Big_L2: &str = "9AAE"; // Big Lead Size 2
+                                                          // HPKE Base cipher bytes of QB2 plaintext
+    pub const HPKE_Base_L0: &str = "4F"; // Lead Size 0
+    pub const HPKE_Base_L1: &str = "5F"; // Lead Size 1
+    pub const HPKE_Base_L2: &str = "6F"; // Lead Size 2
+    pub const HPKE_Base_Big_L0: &str = "7AAF"; // Big Lead Size 0
+    pub const HPKE_Base_Big_L1: &str = "8AAF"; // Big Lead Size 1
+    pub const HPKE_Base_Big_L2: &str = "9AAF"; // Big Lead Size 2
+                                               // HPKE Auth cipher bytes of QB2 plaintext
+    pub const HPKE_Auth_L0: &str = "4G"; // Lead Size 0
+    pub const HPKE_Auth_L1: &str = "5G"; // Lead Size 1
+    pub const HPKE_Auth_L2: &str = "6G"; // Lead Size 2
+    pub const HPKE_Auth_Big_L0: &str = "7AAG"; // Big Lead Size 0
+    pub const HPKE_Auth_Big_L1: &str = "8AAG"; // Big Lead Size 1
+    pub const HPKE_Auth_Big_L2: &str = "9AAG"; // Big Lead Size 2
+                                               // Decimal number string (small)
+    pub const DecimalNumStr_L0: &str = "4H"; // Lead Size 0
+    pub const DecimalNumStr_L1: &str = "5H"; // Lead Size 1
+    pub const DecimalNumStr_L2: &str = "6H"; // Lead Size 2
+                                             // Decimal number string (big)
+    pub const DecimalNumStr_Big_L0: &str = "7AAH"; // Big Lead Size 0
+    pub const DecimalNumStr_Big_L1: &str = "8AAH"; // Big Lead Size 1
+    pub const DecimalNumStr_Big_L2: &str = "9AAH"; // Big Lead Size 2
 }
 
 #[cfg(test)]
@@ -179,6 +285,11 @@ mod test {
     #[case("O", 1, 0, 44, 0)]
     #[case("P", 1, 0, 124, 0)]
     #[case("Q", 1, 0, 44, 0)]
+    // Number types
+    #[case("R", 1, 0, 8, 0)]
+    #[case("S", 1, 0, 16, 0)]
+    #[case("T", 1, 0, 20, 0)]
+    #[case("U", 1, 0, 24, 0)]
     #[case("0A", 2, 0, 24, 0)]
     #[case("0B", 2, 0, 88, 0)]
     #[case("0C", 2, 0, 88, 0)]
@@ -192,12 +303,18 @@ mod test {
     #[case("1AAB", 4, 0, 48, 0)]
     #[case("1AAC", 4, 0, 80, 0)]
     #[case("1AAD", 4, 0, 80, 0)]
-    #[case("1AAE", 4, 0, 56, 0)]
+    #[case("1AAE", 4, 0, 156, 0)]
     #[case("1AAF", 4, 0, 8, 0)]
     #[case("1AAG", 4, 0, 36, 0)]
     #[case("1AAH", 4, 0, 100, 0)]
     #[case("1AAI", 4, 0, 48, 0)]
     #[case("1AAJ", 4, 0, 48, 0)]
+    #[case("1AAK", 4, 0, 4, 0)]
+    #[case("1AAL", 4, 0, 4, 0)]
+    #[case("1AAM", 4, 0, 4, 0)]
+    #[case("1AAN", 4, 0, 16, 1)]
+    #[case("1AAO", 4, 0, 4, 0)]
+    #[case("1AAP", 4, 0, 4, 0)]
     #[case("2AAA", 4, 0, 8, 1)]
     #[case("3AAA", 4, 0, 8, 2)]
     #[case("4A", 2, 2, u32::MAX, 0)]
@@ -212,6 +329,49 @@ mod test {
     #[case("7AAB", 4, 4, u32::MAX, 0)]
     #[case("8AAB", 4, 4, u32::MAX, 1)]
     #[case("9AAB", 4, 4, u32::MAX, 2)]
+    // X25519 sealed box cipher - sniffable plaintext
+    #[case("4C", 2, 2, u32::MAX, 0)]
+    #[case("5C", 2, 2, u32::MAX, 1)]
+    #[case("6C", 2, 2, u32::MAX, 2)]
+    #[case("7AAC", 4, 4, u32::MAX, 0)]
+    #[case("8AAC", 4, 4, u32::MAX, 1)]
+    #[case("9AAC", 4, 4, u32::MAX, 2)]
+    // X25519 sealed box cipher - QB64 plaintext
+    #[case("4D", 2, 2, u32::MAX, 0)]
+    #[case("5D", 2, 2, u32::MAX, 1)]
+    #[case("6D", 2, 2, u32::MAX, 2)]
+    #[case("7AAD", 4, 4, u32::MAX, 0)]
+    #[case("8AAD", 4, 4, u32::MAX, 1)]
+    #[case("9AAD", 4, 4, u32::MAX, 2)]
+    // X25519 sealed box cipher - QB2 plaintext
+    #[case("4E", 2, 2, u32::MAX, 0)]
+    #[case("5E", 2, 2, u32::MAX, 1)]
+    #[case("6E", 2, 2, u32::MAX, 2)]
+    #[case("7AAE", 4, 4, u32::MAX, 0)]
+    #[case("8AAE", 4, 4, u32::MAX, 1)]
+    #[case("9AAE", 4, 4, u32::MAX, 2)]
+    // HPKE Base cipher
+    #[case("4F", 2, 2, u32::MAX, 0)]
+    #[case("5F", 2, 2, u32::MAX, 1)]
+    #[case("6F", 2, 2, u32::MAX, 2)]
+    #[case("7AAF", 4, 4, u32::MAX, 0)]
+    #[case("8AAF", 4, 4, u32::MAX, 1)]
+    #[case("9AAF", 4, 4, u32::MAX, 2)]
+    // HPKE Auth cipher
+    #[case("4G", 2, 2, u32::MAX, 0)]
+    #[case("5G", 2, 2, u32::MAX, 1)]
+    #[case("6G", 2, 2, u32::MAX, 2)]
+    #[case("7AAG", 4, 4, u32::MAX, 0)]
+    #[case("8AAG", 4, 4, u32::MAX, 1)]
+    #[case("9AAG", 4, 4, u32::MAX, 2)]
+    // Decimal number string (small)
+    #[case("4H", 2, 2, u32::MAX, 0)]
+    #[case("5H", 2, 2, u32::MAX, 1)]
+    #[case("6H", 2, 2, u32::MAX, 2)]
+    // Decimal number string (big)
+    #[case("7AAH", 4, 4, u32::MAX, 0)]
+    #[case("8AAH", 4, 4, u32::MAX, 1)]
+    #[case("9AAH", 4, 4, u32::MAX, 2)]
     fn sizage(
         #[case] code: &str,
         #[case] hs: u32,
@@ -311,6 +471,11 @@ mod test {
     #[case(Codex::X25519_Private, "O")]
     #[case(Codex::X25519_Cipher_Seed, "P")]
     #[case(Codex::ECDSA_256r1_Seed, "Q")]
+    // Number types
+    #[case(Codex::Tall, "R")]
+    #[case(Codex::Large, "S")]
+    #[case(Codex::Great, "T")]
+    #[case(Codex::Vast, "U")]
     #[case(Codex::Salt_128, "0A")]
     #[case(Codex::Ed25519_Sig, "0B")]
     #[case(Codex::ECDSA_256k1_Sig, "0C")]
@@ -330,6 +495,12 @@ mod test {
     #[case(Codex::X25519_Cipher_Salt, "1AAH")]
     #[case(Codex::ECDSA_256r1N, "1AAI")]
     #[case(Codex::ECDSA_256r1, "1AAJ")]
+    #[case(Codex::Null, "1AAK")]
+    #[case(Codex::False, "1AAL")]
+    #[case(Codex::True, "1AAM")]
+    #[case(Codex::Tag8, "1AAN")]
+    #[case(Codex::Escape, "1AAO")]
+    #[case(Codex::EmptyNonce, "1AAP")]
     #[case(Codex::TBD1, "2AAA")]
     #[case(Codex::TBD2, "3AAA")]
     #[case(Codex::StrB64_L0, "4A")]
@@ -344,6 +515,49 @@ mod test {
     #[case(Codex::Bytes_Big_L0, "7AAB")]
     #[case(Codex::Bytes_Big_L1, "8AAB")]
     #[case(Codex::Bytes_Big_L2, "9AAB")]
+    // X25519 sealed box cipher - sniffable plaintext
+    #[case(Codex::X25519_SealedBox_Sniff_L0, "4C")]
+    #[case(Codex::X25519_SealedBox_Sniff_L1, "5C")]
+    #[case(Codex::X25519_SealedBox_Sniff_L2, "6C")]
+    #[case(Codex::X25519_SealedBox_Sniff_Big_L0, "7AAC")]
+    #[case(Codex::X25519_SealedBox_Sniff_Big_L1, "8AAC")]
+    #[case(Codex::X25519_SealedBox_Sniff_Big_L2, "9AAC")]
+    // X25519 sealed box cipher - QB64 plaintext
+    #[case(Codex::X25519_SealedBox_QB64_L0, "4D")]
+    #[case(Codex::X25519_SealedBox_QB64_L1, "5D")]
+    #[case(Codex::X25519_SealedBox_QB64_L2, "6D")]
+    #[case(Codex::X25519_SealedBox_QB64_Big_L0, "7AAD")]
+    #[case(Codex::X25519_SealedBox_QB64_Big_L1, "8AAD")]
+    #[case(Codex::X25519_SealedBox_QB64_Big_L2, "9AAD")]
+    // X25519 sealed box cipher - QB2 plaintext
+    #[case(Codex::X25519_SealedBox_QB2_L0, "4E")]
+    #[case(Codex::X25519_SealedBox_QB2_L1, "5E")]
+    #[case(Codex::X25519_SealedBox_QB2_L2, "6E")]
+    #[case(Codex::X25519_SealedBox_QB2_Big_L0, "7AAE")]
+    #[case(Codex::X25519_SealedBox_QB2_Big_L1, "8AAE")]
+    #[case(Codex::X25519_SealedBox_QB2_Big_L2, "9AAE")]
+    // HPKE Base cipher
+    #[case(Codex::HPKE_Base_L0, "4F")]
+    #[case(Codex::HPKE_Base_L1, "5F")]
+    #[case(Codex::HPKE_Base_L2, "6F")]
+    #[case(Codex::HPKE_Base_Big_L0, "7AAF")]
+    #[case(Codex::HPKE_Base_Big_L1, "8AAF")]
+    #[case(Codex::HPKE_Base_Big_L2, "9AAF")]
+    // HPKE Auth cipher
+    #[case(Codex::HPKE_Auth_L0, "4G")]
+    #[case(Codex::HPKE_Auth_L1, "5G")]
+    #[case(Codex::HPKE_Auth_L2, "6G")]
+    #[case(Codex::HPKE_Auth_Big_L0, "7AAG")]
+    #[case(Codex::HPKE_Auth_Big_L1, "8AAG")]
+    #[case(Codex::HPKE_Auth_Big_L2, "9AAG")]
+    // Decimal number string (small)
+    #[case(Codex::DecimalNumStr_L0, "4H")]
+    #[case(Codex::DecimalNumStr_L1, "5H")]
+    #[case(Codex::DecimalNumStr_L2, "6H")]
+    // Decimal number string (big)
+    #[case(Codex::DecimalNumStr_Big_L0, "7AAH")]
+    #[case(Codex::DecimalNumStr_Big_L1, "8AAH")]
+    #[case(Codex::DecimalNumStr_Big_L2, "9AAH")]
     fn codes(#[case] code: &str, #[case] value: &str) {
         assert_eq!(code, value);
     }

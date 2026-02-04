@@ -31,16 +31,16 @@ fn validate_code(code: &str) -> Result<()> {
         indexer::Codex::ECDSA_256k1_Crt,
         indexer::Codex::ECDSA_256r1,
         indexer::Codex::ECDSA_256r1_Crt,
-        // indexer::Codex::Ed448,
-        // indexer::Codex::Ed448_Crt,
+        indexer::Codex::Ed448,
+        indexer::Codex::Ed448_Crt,
         indexer::Codex::Ed25519_Big,
         indexer::Codex::Ed25519_Big_Crt,
         indexer::Codex::ECDSA_256k1_Big,
         indexer::Codex::ECDSA_256k1_Big_Crt,
         indexer::Codex::ECDSA_256r1_Big,
         indexer::Codex::ECDSA_256r1_Big_Crt,
-        // indexer::Codex::Ed448_Big,
-        // indexer::Codex::Ed448_Big_Crt,
+        indexer::Codex::Ed448_Big,
+        indexer::Codex::Ed448_Big_Crt,
     ];
 
     if !CODES.contains(&code) {
@@ -209,21 +209,115 @@ mod test {
             Siger::new(Some(&verfer), None, None, None, None, None, Some(qsig64), None).unwrap();
         assert_eq!(siger.verfer(), verfer);
 
-        // we don't support ed448 yet
+        // Ed448 signature test (python interop)
+        let raw = b"abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdef";
+        let siger = Siger::new(
+            None,
+            Some(4),
+            None,
+            Some(indexer::Codex::Ed448),
+            Some(raw),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(siger.qb64().unwrap(), "0AEEYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVm");
+    }
 
-        // let raw = b"abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdef";
-        // let siger = Siger::new(
-        //     None,
-        //     Some(4),
-        //     None,
-        //     Some(indexer::Codex::Ed448),
-        //     Some(raw),
-        //     None,
-        //     None,
-        //     None,
-        // )
-        // .unwrap();
-        // assert_eq!(siger.qb64().unwrap(), "0AEEYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5YWJjZGVm");
+    #[test]
+    fn big_indexed_signatures() {
+        // Ed25519 big indexed signature (2A code)
+        // Index up to 4095, ondex up to 4095
+        let raw = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]";
+
+        // Test with large index values that require big codes
+        let siger = Siger::new(
+            None,
+            Some(100),
+            Some(200),
+            Some(indexer::Codex::Ed25519_Big),
+            Some(raw),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(siger.code(), indexer::Codex::Ed25519_Big);
+        assert_eq!(siger.index(), 100);
+        assert_eq!(siger.ondex(), 200);
+
+        // Roundtrip via qb64
+        let qb64 = siger.qb64().unwrap();
+        let siger2 = Siger::new_with_qb64(&qb64, None).unwrap();
+        assert_eq!(siger2.code(), indexer::Codex::Ed25519_Big);
+        assert_eq!(siger2.index(), 100);
+        assert_eq!(siger2.ondex(), 200);
+        assert_eq!(siger2.raw(), siger.raw());
+
+        // Test Ed25519_Big_Crt (current only, no ondex)
+        let siger = Siger::new(
+            None,
+            Some(50),
+            None,
+            Some(indexer::Codex::Ed25519_Big_Crt),
+            Some(raw),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(siger.code(), indexer::Codex::Ed25519_Big_Crt);
+        assert_eq!(siger.index(), 50);
+        assert_eq!(siger.ondex(), 0);
+    }
+
+    #[test]
+    fn ed448_big_indexed_signatures() {
+        // Ed448 big indexed signature (3A code)
+        // Index up to 262143, ondex up to 262143
+        let raw = b"abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdef";
+        assert_eq!(raw.len(), 114);
+
+        // Test with large index values
+        let siger = Siger::new(
+            None,
+            Some(1000),
+            Some(2000),
+            Some(indexer::Codex::Ed448_Big),
+            Some(raw),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(siger.code(), indexer::Codex::Ed448_Big);
+        assert_eq!(siger.index(), 1000);
+        assert_eq!(siger.ondex(), 2000);
+
+        // Roundtrip via qb64
+        let qb64 = siger.qb64().unwrap();
+        let siger2 = Siger::new_with_qb64(&qb64, None).unwrap();
+        assert_eq!(siger2.code(), indexer::Codex::Ed448_Big);
+        assert_eq!(siger2.index(), 1000);
+        assert_eq!(siger2.ondex(), 2000);
+        assert_eq!(siger2.raw(), siger.raw());
+
+        // Test Ed448_Big_Crt (current only, no ondex)
+        let siger = Siger::new(
+            None,
+            Some(500),
+            None,
+            Some(indexer::Codex::Ed448_Big_Crt),
+            Some(raw),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
+        assert_eq!(siger.code(), indexer::Codex::Ed448_Big_Crt);
+        assert_eq!(siger.index(), 500);
+        assert_eq!(siger.ondex(), 0);
     }
 
     #[test]

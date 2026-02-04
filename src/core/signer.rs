@@ -61,7 +61,7 @@ fn validate_code(code: &str) -> Result<()> {
         matter::Codex::Ed25519_Seed,
         matter::Codex::ECDSA_256k1_Seed,
         matter::Codex::ECDSA_256r1_Seed,
-        // matter::Codex::Ed448_Seed,
+        matter::Codex::Ed448_Seed,
     ];
 
     if !CODES.contains(&code) {
@@ -77,12 +77,14 @@ fn derive_verfer(code: &str, private_key: &[u8], transferable: bool) -> Result<V
             matter::Codex::Ed25519_Seed => matter::Codex::Ed25519,
             matter::Codex::ECDSA_256k1_Seed => matter::Codex::ECDSA_256k1,
             matter::Codex::ECDSA_256r1_Seed => matter::Codex::ECDSA_256r1,
+            matter::Codex::Ed448_Seed => matter::Codex::Ed448,
             _ => return err!(Error::UnexpectedCode(code.to_string())),
         },
         false => match code {
             matter::Codex::Ed25519_Seed => matter::Codex::Ed25519N,
             matter::Codex::ECDSA_256k1_Seed => matter::Codex::ECDSA_256k1N,
             matter::Codex::ECDSA_256r1_Seed => matter::Codex::ECDSA_256r1N,
+            matter::Codex::Ed448_Seed => matter::Codex::Ed448N,
             _ => return err!(Error::UnexpectedCode(code.to_string())),
         },
     };
@@ -148,6 +150,7 @@ impl Signer {
             matter::Codex::Ed25519_Seed => matter::Codex::Ed25519_Sig,
             matter::Codex::ECDSA_256k1_Seed => matter::Codex::ECDSA_256k1_Sig,
             matter::Codex::ECDSA_256r1_Seed => matter::Codex::ECDSA_256r1_Sig,
+            matter::Codex::Ed448_Seed => matter::Codex::Ed448_Sig,
             _ => return err!(Error::UnexpectedCode(self.code())),
         };
 
@@ -169,6 +172,7 @@ impl Signer {
                     matter::Codex::Ed25519_Seed => indexer::Codex::Ed25519_Crt,
                     matter::Codex::ECDSA_256k1_Seed => indexer::Codex::ECDSA_256k1_Crt,
                     matter::Codex::ECDSA_256r1_Seed => indexer::Codex::ECDSA_256r1_Crt,
+                    matter::Codex::Ed448_Seed => indexer::Codex::Ed448_Crt,
                     _ => return err!(Error::UnexpectedCode(self.code())),
                 }
             } else {
@@ -176,6 +180,7 @@ impl Signer {
                     matter::Codex::Ed25519_Seed => indexer::Codex::Ed25519_Big_Crt,
                     matter::Codex::ECDSA_256k1_Seed => indexer::Codex::ECDSA_256k1_Big_Crt,
                     matter::Codex::ECDSA_256r1_Seed => indexer::Codex::ECDSA_256r1_Big_Crt,
+                    matter::Codex::Ed448_Seed => indexer::Codex::Ed448_Big_Crt,
                     _ => return err!(Error::UnexpectedCode(self.code())),
                 }
             };
@@ -189,6 +194,7 @@ impl Signer {
                     matter::Codex::Ed25519_Seed => indexer::Codex::Ed25519,
                     matter::Codex::ECDSA_256k1_Seed => indexer::Codex::ECDSA_256k1,
                     matter::Codex::ECDSA_256r1_Seed => indexer::Codex::ECDSA_256r1,
+                    matter::Codex::Ed448_Seed => indexer::Codex::Ed448,
                     _ => return err!(Error::UnexpectedCode(self.code())),
                 }
             } else {
@@ -196,6 +202,7 @@ impl Signer {
                     matter::Codex::Ed25519_Seed => indexer::Codex::Ed25519_Big,
                     matter::Codex::ECDSA_256k1_Seed => indexer::Codex::ECDSA_256k1_Big,
                     matter::Codex::ECDSA_256r1_Seed => indexer::Codex::ECDSA_256r1_Big,
+                    matter::Codex::Ed448_Seed => indexer::Codex::Ed448_Big,
                     _ => return err!(Error::UnexpectedCode(self.code())),
                 }
             };
